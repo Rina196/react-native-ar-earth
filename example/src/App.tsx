@@ -1,8 +1,28 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Earth } from '@mindinventory/react-native-ar-earth';
 import pakistanGeoJson from '../assets/IRN.json';
+import {
+  ViroARScene,
+  ViroAmbientLight,
+  ViroARPlaneSelector,
+  ViroARSceneNavigator,
+} from '@reactvision/react-viro';
+import type { Vec3Tuple } from '../../src/earth.types';
+import { useRef, useState } from 'react';
 
 export default function App() {
+  return (
+    <ViroARSceneNavigator
+      worldMeshEnabled
+      initialScene={{
+        scene: () => EarthSceneRenderer(),
+      }}
+      style={styles.container}
+    />
+  );
+}
+
+function EarthSceneRenderer() {
   const locations = [
     // =========================
     // INDIA
@@ -347,16 +367,64 @@ export default function App() {
       longitude: 46.6753,
     },
   ];
+  const selectorRef = useRef<any>(null);
 
+  const [earthPosition, setEarthPosition] = useState<Vec3Tuple | null>(null);
   return (
-    <View style={styles.container}>
+    <ViroARScene
+      anchorDetectionTypes={['PlanesHorizontal']}
+      onAnchorFound={(anchor) => {
+        selectorRef.current?.handleAnchorFound(anchor);
+      }}
+      onAnchorUpdated={(anchor) => {
+        selectorRef.current?.handleAnchorUpdated(anchor);
+      }}
+      onAnchorRemoved={(anchor) => {
+        anchor && selectorRef.current?.handleAnchorRemoved(anchor);
+      }}
+    >
+      {/* =====================================================
+                LIGHT
+            ===================================================== */}
+
+      <ViroAmbientLight color="#ffffff" influenceBitMask={3} />
+
+      {/* =====================================================
+                PLANE SELECTOR
+            ===================================================== */}
+
+      <ViroARPlaneSelector
+        ref={selectorRef}
+        alignment="Horizontal"
+        minWidth={0.1}
+        minHeight={0.1}
+        hideOverlayOnSelection
+        useActualShape
+        onPlaneSelected={(_anchor, tapPosition) => {
+          if (!tapPosition) {
+            return;
+          }
+
+          const position: Vec3Tuple = [
+            tapPosition[0],
+            tapPosition[1],
+            tapPosition[2],
+          ];
+
+          setEarthPosition(position);
+        }}
+      />
+
       <Earth
+        earthPosition={earthPosition}
         arcModelSource={require('./../assets/models/Airplane.glb')}
         earthTexture={require('../assets/images/earthImage.jpg')}
         markerImage={require('../assets/images/locationMarker.png')}
         onLocationSelected={(location) => {
           console.log('Earth location selected:', location);
         }}
+        enablePinch
+        enableRotate
         showMarkers
         showRoute={false}
         showStateBorder={false}
@@ -364,7 +432,7 @@ export default function App() {
         locations={locations}
         geoJson={pakistanGeoJson}
       />
-    </View>
+    </ViroARScene>
   );
 }
 

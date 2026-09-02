@@ -1,8 +1,4 @@
 import {
-  ViroAmbientLight,
-  ViroARPlaneSelector,
-  ViroARScene,
-  ViroARSceneNavigator,
   ViroImage,
   ViroMaterials,
   ViroNode,
@@ -39,10 +35,6 @@ export type {
   EarthLocation,
 } from './earth.types';
 
-const navigatorStyle = {
-  flex: 1,
-};
-
 function EarthSceneRenderer(props: EarthProps) {
   return <EarthScene {...props} />;
 }
@@ -68,6 +60,9 @@ function EarthScene(props: EarthProps) {
     showStateHighlight = true,
     showStateBorder = false,
 
+    enablePinch = true,
+    enableRotate = true,
+
     stateHighlightColor = '#00FFFF',
     stateBorderColor = '#FF0000',
 
@@ -77,14 +72,10 @@ function EarthScene(props: EarthProps) {
 
     onLocationSelected,
     onStateSelected,
-    onEarthPlaced,
     arcModelSource,
+    earthPosition,
     locations = [],
   } = props;
-
-  const selectorRef = useRef<any>(null);
-
-  const [earthPosition, setEarthPosition] = useState<Vec3Tuple | null>(null);
 
   const [earthScale, setEarthScale] = useState(initialScale);
 
@@ -546,62 +537,13 @@ function EarthScene(props: EarthProps) {
   // =========================================================
 
   return (
-    <ViroARScene
-      anchorDetectionTypes={['PlanesHorizontal']}
-      onAnchorFound={(anchor) => {
-        selectorRef.current?.handleAnchorFound(anchor);
-      }}
-      onAnchorUpdated={(anchor) => {
-        selectorRef.current?.handleAnchorUpdated(anchor);
-      }}
-      onAnchorRemoved={(anchor) => {
-        anchor && selectorRef.current?.handleAnchorRemoved(anchor);
-      }}
-    >
-      {/* =====================================================
-          LIGHT
-      ===================================================== */}
-
-      <ViroAmbientLight color="#ffffff" influenceBitMask={3} />
-
-      {/* =====================================================
-          PLANE SELECTOR
-      ===================================================== */}
-
-      <ViroARPlaneSelector
-        ref={selectorRef}
-        alignment="Horizontal"
-        minWidth={0.1}
-        minHeight={0.1}
-        hideOverlayOnSelection
-        useActualShape
-        onPlaneSelected={(_anchor, tapPosition) => {
-          if (!tapPosition) {
-            return;
-          }
-
-          const position: Vec3Tuple = [
-            tapPosition[0],
-            tapPosition[1],
-            tapPosition[2],
-          ];
-
-          setEarthPosition(position);
-
-          onEarthPlaced?.(position);
-        }}
-      />
-
-      {/* =====================================================
-          EARTH
-      ===================================================== */}
-
-      {earthPosition && (
+    <>
+      {earthPosition ? (
         <ViroNode
           position={earthPosition}
           scale={[earthScale, earthScale, earthScale]}
-          onPinch={handlePinch}
-          onRotate={handleRotate}
+          onPinch={enablePinch ? handlePinch : undefined}
+          onRotate={enableRotate ? handleRotate : undefined}
           dragType="FixedDistance"
         >
           {/* =================================================
@@ -743,8 +685,8 @@ function EarthScene(props: EarthProps) {
             </ViroNode>
           </ViroNode>
         </ViroNode>
-      )}
-    </ViroARScene>
+      ) : null}
+    </>
   );
 }
 
@@ -753,13 +695,5 @@ function EarthScene(props: EarthProps) {
 // ============================================================
 
 export default function Earth(props: EarthProps) {
-  return (
-    <ViroARSceneNavigator
-      worldMeshEnabled
-      initialScene={{
-        scene: () => EarthSceneRenderer(props),
-      }}
-      style={navigatorStyle}
-    />
-  );
+  return <EarthSceneRenderer {...props} />;
 }

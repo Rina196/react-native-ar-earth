@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import type {
   GeoFeature,
   GeoFeatureCollection,
@@ -100,6 +102,16 @@ export type EarthProps = {
   showStateBorder?: boolean;
 
   /**
+   * Allow pinch-to-zoom interaction.
+   */
+  enablePinch?: boolean;
+
+  /**
+   * Allow drag/rotate interaction.
+   */
+  enableRotate?: boolean;
+
+  /**
    * State highlight color.
    */
   stateHighlightColor?: string;
@@ -135,9 +147,22 @@ export type EarthProps = {
   onStateSelected?: (state: GeoFeature | null) => void;
 
   /**
-   * Called when the Earth plane is selected.
+   * Controlled Earth placement position.
+   *
+   * When provided, the parent can decide the final placement point,
+   * while the Earth component keeps rendering and interaction behavior.
    */
-  onEarthPlaced?: (position: Vec3Tuple) => void;
+  earthPosition?: Vec3Tuple | null;
+
+  /**
+   * Optional custom plane selector rendered inside the AR scene.
+   */
+  planeSelector?: ReactNode;
+
+  /**
+   * Called when the plane selector resolves a placement position.
+   */
+  onPlaneSelected?: (position: Vec3Tuple) => void;
 
   /**
    * Locations to display as markers on Earth.
