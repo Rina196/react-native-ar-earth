@@ -1,3 +1,9 @@
-import { it } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
+import { Earth, multiply } from '../index';
 
-it.todo('write a test');
+describe('library exports', () => {
+  it('exports the multiply helper and Earth component', () => {
+    expect(typeof multiply).toBe('function');
+    expect(Earth).toBeDefined();
+  });
+});

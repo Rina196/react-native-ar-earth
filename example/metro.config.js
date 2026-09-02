@@ -16,4 +16,14 @@ const config = withMetroConfig(getDefaultConfig(__dirname), {
   conditions: ['mindinventory-react-native-ar-earth-source'],
 });
 
+config.resolver.assetExts.push(
+  'vrx',
+  'obj',
+  'mtl',
+  'glb',
+  'gltf',
+  'bin',
+  'hdr'
+);
+
 module.exports = config;

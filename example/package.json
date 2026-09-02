@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "build:ios": "xcodebuild ONLY_ACTIVE_ARCH=YES -workspace ios/ReactNativeArEarthExample.xcworkspace -UseNewBuildSystem=YES -scheme ReactNativeArEarthExample -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -quiet",
     "build:android": "cd android && ./gradlew assembleDebug -DtestBuildType=debug -Dorg.gradle.jvmargs=-Xmx4g",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~55.0.12",
+    "@reactvision/react-viro": "^2.58.1",
     "expo": "~55.0.30",
     "expo-status-bar": "~55.0.6",
     "react": "19.2.0",
